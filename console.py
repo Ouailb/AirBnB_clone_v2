@@ -136,12 +136,13 @@ class HBNBCommand(cmd.Cmd):
             if isinstance(value, str):
                 value = value.replace("_", " ").replace('\\"', '"')
             kv[key] = value
-        print("class is ",class_name)
-        print("key value : ",kv)
+        # print("class is ",class_name)
+        # print("key value : ",kv)
         new_instance = HBNBCommand.classes[class_name](**kv) #args[0] equal class and **kv key and value of arguments
         storage.save()
-        print(new_instance.id)
+        print(new_instance)
         storage.save()
+     
 
 
 
