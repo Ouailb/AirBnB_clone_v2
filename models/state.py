@@ -13,3 +13,11 @@ class State(BaseModel, Base):
     name = Column(String(128), nullable=False)
     cities = relationship("City", cascade='all, delete, delete-orphan',
                           backref="state")
+
+    @property
+    def get_cities(self):
+        """Returns the list of City objects linked to the current state."""
+        cities = models.storage.all()
+        cl = [c for c in cities.
+              values() if isinstance(c, models.c) and c.state_id == self.id]
+        return cl
