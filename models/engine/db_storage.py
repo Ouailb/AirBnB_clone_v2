@@ -7,6 +7,8 @@ from os import getenv
 from models.base_model import Base
 from models.state import State
 from models.city import City
+from models.user import User
+from models.place import Place
 
 
 class DBStorage:
@@ -40,7 +42,7 @@ class DBStorage:
                 key = "{}.{}".format(type(q).__name__, q.id)
                 dict[key] = q
         else:
-            classes = [State, City]
+            classes = [State, City, User, Place]
             for clase in classes:
                 query = self.__session.query(clase)
                 for q in query:
