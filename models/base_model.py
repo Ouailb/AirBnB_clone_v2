@@ -3,9 +3,19 @@
 import uuid
 from datetime import datetime
 import models
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, String, DateTime
+
+
+Base = declarative_base()
+
 
 class BaseModel:
     """A base class for all hbnb models"""
+    id = Column(String(60), unique=True, nullable=False, primary_key=True)
+    created_at = Column(DateTime, nullable=False, default=(datetime.utcnow()))
+    updated_at = Column(DateTime, nullable=False, default=(datetime.utcnow()))
+
     def __init__(self, *args, **kwargs):
         """Instatntiates a new model"""
         if kwargs:
@@ -24,19 +34,6 @@ class BaseModel:
         else:
             self.id = str(uuid.uuid4())
             self.created_at = self.updated_at = datetime.now()
-        # if not kwargs:
-        #     from models import storage
-        #     self.id = str(uuid.uuid4())
-        #     self.created_at = datetime.now()
-        #     self.updated_at = datetime.now()
-        #     storage.new(self)
-        # else:
-        #     kwargs['updated_at'] = datetime.strptime(kwargs['updated_at'],
-        #                                              '%Y-%m-%dT%H:%M:%S.%f')
-        #     kwargs['created_at'] = datetime.strptime(kwargs['created_at'],
-        #                                              '%Y-%m-%dT%H:%M:%S.%f')
-        #     del kwargs['__class__']
-      
 
     def __str__(self):
         """Returns a string representation of the instance"""
@@ -45,19 +42,20 @@ class BaseModel:
 
     def save(self):
         """Updates updated_at with current time when instance is changed"""
-        # from models import storage
-        # self.updated_at = datetime.now()
-        # storage.save()
         self.updated_at = datetime.now()
         models.storage.new(self)
         models.storage.save()
 
     def to_dict(self):
         """Convert instance into dict format"""
-        my_dict = dict(self.__dict__)
-        my_dict["__class__"] = str(type(self).__name__)
-        my_dict["created_at"] = self.created_at.isoformat()
-        my_dict["updated_at"] = self.updated_at.isoformat()
-        if '_sa_instance_state' in my_dict.keys():
-            del my_dict['_sa_instance_state']
-        return my_dict
+        Todict = dict(self.__dict__)
+        Todict["__class__"] = str(type(self).__name__)
+        Todict["created_at"] = self.created_at.isoformat()
+        Todict["updated_at"] = self.updated_at.isoformat()
+        if '_sa_instance_state' in Todict.keys():
+            del Todict['_sa_instance_state']
+        return Todict
+
+    def delete(self):
+        """ delete an object"""
+        models.storage.delete(self)
