@@ -3,6 +3,7 @@
 from models.base_model import BaseModel, Base
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, String
+from models.city import City
 import models
 
 
@@ -15,7 +16,7 @@ class State(BaseModel, Base):
                           backref="state")
 
     @property
-    def get_cities(self):
+    def cities(self):
         """Returns the list of City objects linked to the current state."""
         cities = models.storage.all()
         cl = [c for c in cities.
