@@ -1,9 +1,9 @@
 #!/usr/bin/python3
-""" New engine DBStorage """
+""" new class for sqlAlchemy """
+from os import getenv
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy import (create_engine)
 from sqlalchemy.ext.declarative import declarative_base
-from os import getenv
 from models.base_model import Base
 from models.state import State
 from models.city import City
@@ -14,7 +14,7 @@ from models.amenity import Amenity
 
 
 class DBStorage:
-    """ SQLAlchemy  Configuration"""
+    """ create tables in environmental"""
     __engine = None
     __session = None
 
@@ -33,24 +33,26 @@ class DBStorage:
             Base.metadata.drop_all(self.__engine)
 
     def all(self, cls=None):
-        """return a dictionary: (like FileStorage)"""
-
-        dict = {}
+        """returns a dictionary
+        Return:
+            returns a dictionary of __object
+        """
+        dic = {}
         if cls:
             if type(cls) is str:
                 cls = eval(cls)
             query = self.__session.query(cls)
-            for q in query:
-                key = "{}.{}".format(type(q).__name__, q.id)
-                dict[key] = q
+            for elem in query:
+                key = "{}.{}".format(type(elem).__name__, elem.id)
+                dic[key] = elem
         else:
-            classes = [State, City, User, Place, Review, Amenity]
-            for clase in classes:
+            lista = [State, City, User, Place, Review, Amenity]
+            for clase in lista:
                 query = self.__session.query(clase)
-                for q in query:
-                    key = "{}.{}".format(type(q).__name__, q.id)
-                    dict[key] = q
-        return (dict)
+                for elem in query:
+                    key = "{}.{}".format(type(elem).__name__, elem.id)
+                    dic[key] = elem
+        return (dic)
 
     def new(self, obj):
         """add a new element in the table
@@ -63,12 +65,14 @@ class DBStorage:
         self.__session.commit()
 
     def delete(self, obj=None):
-        """delete an object"""
+        """delete an element in the table
+        """
         if obj:
             self.session.delete(obj)
 
     def reload(self):
-        """reload the db maybe like cache"""
+        """configuration
+        """
         Base.metadata.create_all(self.__engine)
         sec = sessionmaker(bind=self.__engine, expire_on_commit=False)
         Session = scoped_session(sec)
