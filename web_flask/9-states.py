@@ -1,42 +1,45 @@
 #!/usr/bin/python3
-"""Starts a Flask web application.
-
-The application listens on 0.0.0.0, port 5000.
-Routes:
-    /states: HTML page with a list of all State objects.
-    /states/<id>: HTML page displaying the given state with <id>.
-"""
+"""Script that starts a Flask web application"""
+from flask import Flask, render_template
 from models import storage
-from flask import Flask
-from flask import render_template
+from models.state import State
 
 app = Flask(__name__)
 
 
-@app.route("/states", strict_slashes=False)
+@app.before_request
+def before_request():
+    """Run before each request"""
+    storage.reload()
+
+
+@app.route('/states', strict_slashes=False)
 def states():
-    """Displays an HTML page with a list of all States.
+    """Displays a HTML page with a list of all State objects"""
+    states = storage.all(State).values()
+    sorted_states = sorted(states, key=lambda state: state.name)
 
-    States are sorted by name.
-    """
-    states = storage.all("State")
-    return render_template("9-states.html", state=states)
+    return render_template('9-states.html', states=sorted_states)
 
 
-@app.route("/states/<id>", strict_slashes=False)
-def states_id(id):
-    """Displays an HTML page with info about <id>, if it exists."""
-    for state in storage.all("State").values():
-        if state.id == id:
-            return render_template("9-states.html", state=state)
-    return render_template("9-states.html")
+@app.route('/states/<id>', strict_slashes=False)
+def cities_by_state(id):
+    """Displays a HTML page with the list of City objects linked to a State"""
+    state = storage.get(State, id)
+    
+    if state:
+        cities = state.cities if hasattr(state, 'cities') else []
+        sorted_cities = sorted(cities, key=lambda city: city.name)
+        return render_template('9-states.html', state=state, cities=sorted_cities)
+
+    return render_template('9-states.html', not_found=True)
 
 
 @app.teardown_appcontext
-def teardown(exc):
-    """Remove the current SQLAlchemy session."""
+def teardown_appcontext(exception):
+    """Remove the current SQLAlchemy Session"""
     storage.close()
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0")
+    app.run(host="0.0.0.0", port=5000)
